@@ -78,3 +78,28 @@ export const verifyCodeAndRegister = createServerFn({ method: "POST" })
     if (error) return { ok: false as const, reason: "signup" as const, message: error.message };
     return { ok: true as const };
   });
+
+/** Проверяет код для двухфакторного входа и удаляет его при успехе. */
+export const verifyLoginCode = createServerFn({ method: "POST" })
+  .inputValidator((data) => z.object({ email: emailSchema, code: codeSchema }).parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const email = data.email.trim().toLowerCase();
+
+    const { data: row } = await supabaseAdmin
+      .from("verification_codes")
+      .select("id, code, expires_at")
+      .eq("email", email)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!row || row.code !== data.code) return { ok: false as const, reason: "invalid" as const };
+    if (new Date(row.expires_at).getTime() < Date.now()) {
+      await supabaseAdmin.from("verification_codes").delete().eq("id", row.id);
+      return { ok: false as const, reason: "expired" as const };
+    }
+
+    await supabaseAdmin.from("verification_codes").delete().eq("email", email);
+    return { ok: true as const };
+  });
