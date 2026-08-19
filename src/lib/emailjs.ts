@@ -18,6 +18,8 @@ export async function sendPasscodeEmail(email: string, passcode: string, expires
     {
       email,
       passcode,
+      from_name: "Go Mangystau",
+      subject: "Go Mangystau — подтверждение регистрации",
       time: expiresAt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }),
     },
     { publicKey: PUBLIC_KEY },

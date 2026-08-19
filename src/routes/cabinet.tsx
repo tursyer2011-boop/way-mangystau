@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { ActiveOrderCard } from "@/components/ActiveOrderCard";
 import { BackButton } from "@/components/BackButton";
 import { BottomNav } from "@/components/BottomNav";
 import { Header } from "@/components/Header";
