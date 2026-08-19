@@ -15,7 +15,7 @@ export async function uploadPhoto(file: Blob, userId: string, ext = "jpg") {
 
 export async function signedPhotoUrl(path?: string | null) {
   if (!path) return null;
-  if (path.startsWith("http")) return path;
+  if (path.startsWith("http") || path.startsWith("/")) return path;
   const { data } = await supabase.storage.from(PHOTO_BUCKET).createSignedUrl(path, 60 * 60 * 24);
   return data?.signedUrl ?? null;
 }
