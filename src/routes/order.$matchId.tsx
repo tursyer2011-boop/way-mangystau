@@ -63,13 +63,23 @@ function OrderPage() {
         .maybeSingle();
       if (!match) return null;
       const m = match as Match;
-      const listing = await fetchMatchListing(m);
-      return { match: m, listing };
+      const [listing, { data: parties }] = await Promise.all([
+        fetchMatchListing(m),
+        supabase
+          .from("profiles")
+          .select("id, is_demo")
+          .in("id", [m.carrier_id, m.sender_id]),
+      ]);
+      return { match: m, listing, parties: parties ?? [] };
     },
   });
 
   const match = data?.match;
   const isCarrier = !!user && match?.carrier_id === user.id;
+  // вторая сторона — демо-профиль: сделка идёт автоматически
+  const isDemo =
+    !!user &&
+    !!data?.parties?.some((p) => p.id !== user.id && (p as { is_demo?: boolean }).is_demo);
 
   // realtime: match status + tracking points
   useEffect(() => {
@@ -122,22 +132,41 @@ function OrderPage() {
     if (position && f && t) progressRef.current = progressOf(position, f, t);
   }, [position, data?.listing?.from_city, data?.listing?.to_city]);
 
-  // демо-симуляция движения перевозчика по маршруту
+  // демо-сделка: сразу после подтверждения поездка стартует автоматически
   useEffect(() => {
-    if (!isCarrier || match?.status !== "in_transit") return;
+    if (!isDemo || match?.status !== "confirmed") return;
+    void supabase
+      .from("matches")
+      .update({ status: "in_transit" })
+      .eq("id", matchId)
+      .then(() => qc.invalidateQueries({ queryKey: ["match", matchId] }));
+  }, [isDemo, match?.status, matchId, qc]);
+
+  // симуляция движения по маршруту (перевозчик или демо-сделка)
+  useEffect(() => {
+    if (!(isCarrier || isDemo) || match?.status !== "in_transit") return;
     const f = cityCoords(data?.listing?.from_city);
     const t = cityCoords(data?.listing?.to_city);
     if (!f || !t) return;
-    const id = setInterval(() => {
+    const tick = () => {
       const next = Math.min(1, progressRef.current + 0.04);
       progressRef.current = next;
       const p = lerpPoint(f, t, next);
       setPosition(p);
-      void supabase.from("live_tracking").insert({ match_id: matchId, ...p });
+      if (isCarrier) void supabase.from("live_tracking").insert({ match_id: matchId, ...p });
       if (next >= 1) clearInterval(id);
-    }, 5000);
+    };
+    tick();
+    const id = setInterval(tick, 5000);
     return () => clearInterval(id);
-  }, [isCarrier, match?.status, matchId, data?.listing?.from_city, data?.listing?.to_city]);
+  }, [
+    isCarrier,
+    isDemo,
+    match?.status,
+    matchId,
+    data?.listing?.from_city,
+    data?.listing?.to_city,
+  ]);
 
 
   if (!loading && !user) {
@@ -239,12 +268,12 @@ function OrderPage() {
                 <CheckCircle2 className="mr-1 h-4 w-4" /> Подтвердить
               </Button>
             )}
-            {isCarrier && match.status === "confirmed" && (
+            {(isCarrier || isDemo) && match.status === "confirmed" && (
               <Button onClick={() => void startTrip()}>
                 <Navigation className="mr-1 h-4 w-4" /> Начать поездку
               </Button>
             )}
-            {isCarrier && match.status === "in_transit" && (
+            {(isCarrier || isDemo) && match.status === "in_transit" && (
               <Button onClick={() => void finish()}>
                 <MapPin className="mr-1 h-4 w-4" /> Прибыл
               </Button>

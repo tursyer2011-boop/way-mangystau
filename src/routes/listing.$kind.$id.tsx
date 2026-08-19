@@ -34,6 +34,7 @@ type Author = {
   show_contact: boolean;
   rating_as_sender: number;
   rating_as_carrier: number;
+  is_demo?: boolean;
 };
 
 const CONFIG = {
@@ -64,7 +65,9 @@ function ListingPage() {
       const [{ data: author }, { data: contact }] = await Promise.all([
         supabase
           .from("profiles")
-          .select("id, nickname, username, show_contact, rating_as_sender, rating_as_carrier")
+          .select(
+            "id, nickname, username, show_contact, rating_as_sender, rating_as_carrier, is_demo",
+          )
           .eq("id", authorId)
           .maybeSingle(),
         supabase.from("profile_contacts").select("phone").eq("user_id", authorId).maybeSingle(),
@@ -107,13 +110,16 @@ function ListingPage() {
       return;
     }
 
+    // демо-профиль «соглашается» автоматически — сделка сразу подтверждена
+    const isDemo = !!author.is_demo;
+
     const { data: created, error } = await supabase
       .from("matches")
       .insert({
         carrier_id: carrierId,
         sender_id: senderId,
-        carrier_confirmed: carrierId === user.id,
-        sender_confirmed: senderId === user.id,
+        carrier_confirmed: isDemo || carrierId === user.id,
+        sender_confirmed: isDemo || senderId === user.id,
         ...({ [linkColumn]: id } as { route_id?: string }),
       })
       .select("id")
@@ -123,7 +129,9 @@ function ListingPage() {
       toast.error(error?.message ?? "Не удалось откликнуться");
       return;
     }
-    toast.success("Отклик отправлен, ожидайте подтверждения");
+    toast.success(
+      isDemo ? "Отклик принят — сделка подтверждена" : "Отклик отправлен, ожидайте подтверждения",
+    );
     navigate({ to: "/order/$matchId", params: { matchId: created.id } });
   };
 
