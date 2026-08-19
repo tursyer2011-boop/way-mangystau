@@ -34,6 +34,7 @@ type Author = {
   show_contact: boolean;
   rating_as_sender: number;
   rating_as_carrier: number;
+  is_demo?: boolean;
 };
 
 const CONFIG = {
@@ -64,7 +65,9 @@ function ListingPage() {
       const [{ data: author }, { data: contact }] = await Promise.all([
         supabase
           .from("profiles")
-          .select("id, nickname, username, show_contact, rating_as_sender, rating_as_carrier")
+          .select(
+            "id, nickname, username, show_contact, rating_as_sender, rating_as_carrier, is_demo",
+          )
           .eq("id", authorId)
           .maybeSingle(),
         supabase.from("profile_contacts").select("phone").eq("user_id", authorId).maybeSingle(),
