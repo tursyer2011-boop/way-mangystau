@@ -122,11 +122,30 @@ function OrderPage() {
       });
   }, [match, matchId]);
 
+  // keep progress in sync with the latest known position
   useEffect(() => {
-    return () => {
-      if (watchRef.current != null) navigator.geolocation.clearWatch(watchRef.current);
-    };
-  }, []);
+    const f = cityCoords(data?.listing?.from_city);
+    const t = cityCoords(data?.listing?.to_city);
+    if (position && f && t) progressRef.current = progressOf(position, f, t);
+  }, [position, data?.listing?.from_city, data?.listing?.to_city]);
+
+  // демо-симуляция движения перевозчика по маршруту
+  useEffect(() => {
+    if (!isCarrier || match?.status !== "in_transit") return;
+    const f = cityCoords(data?.listing?.from_city);
+    const t = cityCoords(data?.listing?.to_city);
+    if (!f || !t) return;
+    const id = setInterval(() => {
+      const next = Math.min(1, progressRef.current + 0.04);
+      progressRef.current = next;
+      const p = lerpPoint(f, t, next);
+      setPosition(p);
+      void supabase.from("live_tracking").insert({ match_id: matchId, ...p });
+      if (next >= 1) clearInterval(id);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [isCarrier, match?.status, matchId, data?.listing?.from_city, data?.listing?.to_city]);
+
 
   if (!loading && !user) {
     navigate({ to: "/auth" });
