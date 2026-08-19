@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cityCoords } from "@/lib/cities";
 import { describePosition, lerpPoint, progressOf } from "@/lib/tracking";
+import { fetchMatchListing, type MatchLink } from "@/lib/match-listing";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -28,10 +29,8 @@ export const Route = createFileRoute("/order/$matchId")({
   component: OrderPage,
 });
 
-type Match = {
+type Match = MatchLink & {
   id: string;
-  route_id: string | null;
-  request_id: string | null;
   carrier_id: string;
   sender_id: string;
   carrier_confirmed: boolean;
@@ -64,14 +63,8 @@ function OrderPage() {
         .maybeSingle();
       if (!match) return null;
       const m = match as Match;
-      const listing = m.route_id
-        ? await supabase.from("carrier_routes").select("*").eq("id", m.route_id).maybeSingle()
-        : await supabase
-            .from("shipment_requests")
-            .select("*")
-            .eq("id", m.request_id!)
-            .maybeSingle();
-      return { match: m, listing: listing.data as { from_city: string; to_city: string } | null };
+      const listing = await fetchMatchListing(m);
+      return { match: m, listing };
     },
   });
 

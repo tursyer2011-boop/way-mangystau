@@ -7,7 +7,9 @@ import { cityCoords } from "@/lib/cities";
 import { describePosition } from "@/lib/tracking";
 import { supabase } from "@/integrations/supabase/client";
 
-type Match = { id: string; route_id: string | null; request_id: string | null; status: string };
+import { fetchMatchListing, type MatchLink } from "@/lib/match-listing";
+
+type Match = MatchLink & { id: string; status: string };
 
 /** Карточка активного заказа с мини-картой и текстовым описанием положения. */
 export function ActiveOrderCard({ match }: { match: Match }) {
@@ -15,20 +17,7 @@ export function ActiveOrderCard({ match }: { match: Match }) {
 
   const { data: listing } = useQuery({
     queryKey: ["match-listing", match.id],
-    queryFn: async () => {
-      const res = match.route_id
-        ? await supabase
-            .from("carrier_routes")
-            .select("from_city,to_city")
-            .eq("id", match.route_id)
-            .maybeSingle()
-        : await supabase
-            .from("shipment_requests")
-            .select("from_city,to_city")
-            .eq("id", match.request_id!)
-            .maybeSingle();
-      return res.data;
-    },
+    queryFn: () => fetchMatchListing(match),
   });
 
   useEffect(() => {
