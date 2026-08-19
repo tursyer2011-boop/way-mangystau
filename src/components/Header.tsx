@@ -16,7 +16,7 @@ export function Header() {
             <Truck className="h-5 w-5 text-primary-foreground" aria-hidden />
           </span>
           <span className="text-base font-extrabold tracking-tight">
-            Go <span className="text-primary">Mangystau</span>
+            Way <span className="text-primary">Mangystau</span>
           </span>
         </Link>
 
