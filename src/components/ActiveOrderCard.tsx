@@ -68,16 +68,14 @@ export function ActiveOrderCard({ match }: { match: Match }) {
         </Link>
         <Badge variant="secondary">{match.status === "in_transit" ? "В пути" : "Подтверждено"}</Badge>
       </div>
-      {match.status === "in_transit" && (
-        <>
-          <TrackingMap position={position} heightClass="h-40" {...(from ? { from } : {})} {...(to ? { to } : {})} />
-          <p className="text-sm font-medium">
-            {position && from && to
-              ? describePosition(position, from, to, listing?.to_city)
-              : "Ожидаем первые координаты перевозчика"}
-          </p>
-        </>
-      )}
+      <TrackingMap position={position} heightClass="h-40" {...(from ? { from } : {})} {...(to ? { to } : {})} />
+      <p className="text-sm font-medium">
+        {position && from && to
+          ? describePosition(position, from, to, listing?.to_city)
+          : match.status === "in_transit"
+            ? "Ожидаем первые координаты перевозчика"
+            : "Маршрут заказа. Откройте заказ, чтобы начать поездку"}
+      </p>
     </div>
   );
 }

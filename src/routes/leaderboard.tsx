@@ -30,10 +30,13 @@ type Row = {
   username: string | null;
   rating_as_sender: number;
   rating_as_carrier: number;
+  reviews: number;
 };
 
 function List({ rows, field }: { rows: Row[]; field: "rating_as_sender" | "rating_as_carrier" }) {
-  const sorted = [...rows].sort((a, b) => Number(b[field]) - Number(a[field])).slice(0, 20);
+  const sorted = [...rows]
+    .sort((a, b) => Number(b[field]) - Number(a[field]) || b.reviews - a.reviews)
+    .slice(0, 20);
   return (
     <ol className="space-y-2">
       {sorted.map((r, i) => (
@@ -42,6 +45,7 @@ function List({ rows, field }: { rows: Row[]; field: "rating_as_sender" | "ratin
           <span className="flex-1 truncate font-semibold">
             {r.nickname || r.username || "Аноним"}
           </span>
+          <span className="text-xs text-muted-foreground">{r.reviews} отз.</span>
           <span className="flex items-center gap-1 font-bold text-primary">
             <Star className="h-4 w-4 fill-current" aria-hidden />
             {Number(r[field]).toFixed(1)}
@@ -56,10 +60,15 @@ function LeaderboardPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["leaderboard"],
     queryFn: async () => {
-      const { data: rows } = await supabase
-        .from("profiles")
-        .select("id, nickname, username, rating_as_sender, rating_as_carrier");
-      return (rows ?? []) as Row[];
+      const [{ data: rows }, { data: revs }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("id, nickname, username, rating_as_sender, rating_as_carrier"),
+        supabase.from("reviews").select("target_id"),
+      ]);
+      const counts = new Map<string, number>();
+      for (const r of revs ?? []) counts.set(r.target_id, (counts.get(r.target_id) ?? 0) + 1);
+      return (rows ?? []).map((r) => ({ ...r, reviews: counts.get(r.id) ?? 0 })) as Row[];
     },
   });
 
