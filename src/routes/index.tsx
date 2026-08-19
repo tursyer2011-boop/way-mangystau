@@ -19,13 +19,13 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Go Mangystau — биржа грузоперевозок Мангистау" },
+      { title: "Way Mangystau — биржа грузоперевозок Мангистау" },
       {
         name: "description",
         content:
           "Попутные машины и грузы по Мангистауской области: Актау, Жанаозен, Бейнеу, Курык, Шетпе. Найдите перевозчика или груз за минуту.",
       },
-      { property: "og:title", content: "Go Mangystau — биржа грузоперевозок" },
+      { property: "og:title", content: "Way Mangystau — биржа грузоперевозок" },
       {
         property: "og:description",
         content: "Объявления перевозчиков и заявки отправителей по Мангистауской области.",

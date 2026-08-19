@@ -11,13 +11,13 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
     meta: [
-      { title: "Рейтинг перевозчиков и отправителей — Go Mangystau" },
+      { title: "Рейтинг перевозчиков и отправителей — Way Mangystau" },
       {
         name: "description",
         content:
-          "Лидерборд Go Mangystau: отдельные рейтинги перевозчиков и отправителей грузов по Мангистауской области.",
+          "Лидерборд Way Mangystau: отдельные рейтинги перевозчиков и отправителей грузов по Мангистауской области.",
       },
-      { property: "og:title", content: "Лидерборд — Go Mangystau" },
+      { property: "og:title", content: "Лидерборд — Way Mangystau" },
       { property: "og:description", content: "Раздельные рейтинги перевозчиков и отправителей." },
     ],
   }),

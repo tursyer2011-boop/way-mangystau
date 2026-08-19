@@ -20,9 +20,9 @@ import { useAuth } from "@/hooks/useAuth";
 export const Route = createFileRoute("/order/$matchId")({
   head: () => ({
     meta: [
-      { title: "Заказ и трекинг — Go Mangystau" },
+      { title: "Заказ и трекинг — Way Mangystau" },
       { name: "description", content: "Подтверждение сделки, чат и живой трекинг машины." },
-      { property: "og:title", content: "Заказ — Go Mangystau" },
+      { property: "og:title", content: "Заказ — Way Mangystau" },
       { property: "og:description", content: "Живой трекинг перевозки по Мангистау." },
     ],
   }),

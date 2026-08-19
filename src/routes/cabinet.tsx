@@ -21,12 +21,12 @@ import { useState } from "react";
 export const Route = createFileRoute("/cabinet")({
   head: () => ({
     meta: [
-      { title: "Личный кабинет — Go Mangystau" },
+      { title: "Личный кабинет — Way Mangystau" },
       {
         name: "description",
         content: "Мои объявления, отклики, активные заказы с трекингом и чаты.",
       },
-      { property: "og:title", content: "Личный кабинет — Go Mangystau" },
+      { property: "og:title", content: "Личный кабинет — Way Mangystau" },
       { property: "og:description", content: "Управляйте объявлениями и заказами." },
     ],
   }),

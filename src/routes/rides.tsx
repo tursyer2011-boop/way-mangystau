@@ -18,13 +18,13 @@ import {
 export const Route = createFileRoute("/rides")({
   head: () => ({
     meta: [
-      { title: "Попутчики по Мангистау — Go Mangystau" },
+      { title: "Попутчики по Мангистау — Way Mangystau" },
       {
         name: "description",
         content:
           "Пассажирские поездки между Актау, Жанаозеном, Бейнеу, Жетыбаем и другими городами Мангистауской области.",
       },
-      { property: "og:title", content: "Попутчики — Go Mangystau" },
+      { property: "og:title", content: "Попутчики — Way Mangystau" },
       { property: "og:description", content: "Поездки водителей и заявки пассажиров." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -15,12 +15,12 @@ import { useAuth } from "@/hooks/useAuth";
 export const Route = createFileRoute("/listing/$kind/$id")({
   head: () => ({
     meta: [
-      { title: "Объявление — Go Mangystau" },
+      { title: "Объявление — Way Mangystau" },
       {
         name: "description",
         content: "Детали объявления о перевозке или поездке по Мангистауской области.",
       },
-      { property: "og:title", content: "Объявление — Go Mangystau" },
+      { property: "og:title", content: "Объявление — Way Mangystau" },
       { property: "og:description", content: "Маршрут, дата, цена и контакты автора." },
     ],
   }),
