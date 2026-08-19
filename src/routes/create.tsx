@@ -6,6 +6,7 @@ import { BackButton } from "@/components/BackButton";
 import { BottomNav } from "@/components/BottomNav";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,10 +29,11 @@ export const Route = createFileRoute("/create")({
       { title: "Разместить объявление — Go Mangystau" },
       {
         name: "description",
-        content: "Опубликуйте маршрут перевозчика или заявку на перевозку груза по Мангистау.",
+        content:
+          "Опубликуйте маршрут перевозчика, заявку на груз или пассажирскую поездку по Мангистау.",
       },
       { property: "og:title", content: "Разместить объявление — Go Mangystau" },
-      { property: "og:description", content: "Маршруты перевозчиков и заявки отправителей." },
+      { property: "og:description", content: "Грузы и попутчики по Мангистауской области." },
     ],
   }),
   component: CreatePage,
@@ -51,14 +53,16 @@ function CreatePage() {
   const [price, setPrice] = useState("");
   const [cargoType, setCargoType] = useState(CARGO_TYPES[0]!);
   const [weight, setWeight] = useState("");
+  const [seats, setSeats] = useState("3");
   const [file, setFile] = useState<File | null>(null);
+  const [urgent, setUrgent] = useState(false);
 
   if (!loading && !user) {
     return (
       <div className="min-h-screen bg-background pb-20">
         <Header />
         <main className="mx-auto max-w-md px-3 py-10 text-center">
-        <BackButton />
+          <BackButton />
           <h1 className="text-xl font-bold">Нужен аккаунт</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Размещать объявления могут только зарегистрированные пользователи.
@@ -87,6 +91,11 @@ function CreatePage() {
     }
   };
 
+  const finish = (msg: string, to: "/" | "/rides") => {
+    toast.success(msg);
+    navigate({ to });
+  };
+
   const submitRoute = async () => {
     if (!user) return;
     setBusy(true);
@@ -103,10 +112,10 @@ function CreatePage() {
         vehicle_photo_url: photo,
         capacity_kg: capacity ? Number(capacity) : null,
         price: price ? Number(price) : null,
+        is_urgent: urgent,
       });
       if (error) throw error;
-      toast.success("Объявление опубликовано");
-      navigate({ to: "/" });
+      finish("Объявление опубликовано", "/");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Не удалось опубликовать");
     } finally {
@@ -130,10 +139,58 @@ function CreatePage() {
         weight_kg: weight ? Number(weight) : null,
         photo_url: photo,
         price_offer: price ? Number(price) : null,
+        is_urgent: urgent,
       });
       if (error) throw error;
-      toast.success("Заявка опубликована");
-      navigate({ to: "/" });
+      finish("Заявка опубликована", "/");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Не удалось опубликовать");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const submitRide = async () => {
+    if (!user) return;
+    setBusy(true);
+    try {
+      const photo = await resolvePhoto(
+        `Реалистичное фото легкового автомобиля «${vehicleType}» на трассе в Мангистауской области Казахстана`,
+      );
+      const { error } = await supabase.from("passenger_rides").insert({
+        driver_id: user.id,
+        from_city: fromCity,
+        to_city: toCity,
+        travel_date: date || null,
+        seats_available: Math.min(5, Math.max(1, Number(seats) || 1)),
+        price_per_seat: price ? Number(price) : null,
+        vehicle_photo_url: photo,
+        is_urgent: urgent,
+      });
+      if (error) throw error;
+      finish("Поездка опубликована", "/rides");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Не удалось опубликовать");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const submitPassengerRequest = async () => {
+    if (!user) return;
+    setBusy(true);
+    try {
+      const { error } = await supabase.from("passenger_requests").insert({
+        passenger_id: user.id,
+        from_city: fromCity,
+        to_city: toCity,
+        travel_date: date || null,
+        seats: Math.min(5, Math.max(1, Number(seats) || 1)),
+        price_offer: price ? Number(price) : null,
+        is_urgent: urgent,
+      });
+      if (error) throw error;
+      finish("Заявка опубликована", "/rides");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Не удалось опубликовать");
     } finally {
@@ -194,6 +251,42 @@ function CreatePage() {
     </div>
   );
 
+  const UrgentField = (
+    <label className="flex items-start gap-2 rounded-lg border border-primary/40 bg-primary/5 p-3 text-sm">
+      <Checkbox checked={urgent} onCheckedChange={(v) => setUrgent(v === true)} />
+      <span>
+        <span className="font-semibold">Срочно — 1500 ₸</span>
+        <span className="block text-xs text-muted-foreground">
+          Объявление поднимается вверх ленты и выделяется бейджем «СРОЧНО». Демо-режим: оплата не
+          требуется.
+        </span>
+      </span>
+    </label>
+  );
+
+  const SeatsPrice = (labelPrice: string) => (
+    <div className="grid grid-cols-2 gap-2">
+      <div>
+        <Label htmlFor="seats">Мест (1–5)</Label>
+        <Input
+          id="seats"
+          inputMode="numeric"
+          value={seats}
+          onChange={(e) => setSeats(e.target.value)}
+        />
+      </div>
+      <div>
+        <Label htmlFor="price-seat">{labelPrice}</Label>
+        <Input
+          id="price-seat"
+          inputMode="numeric"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+        />
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <Header />
@@ -201,13 +294,11 @@ function CreatePage() {
         <BackButton />
         <h1 className="mb-4 text-2xl font-extrabold">Новое объявление</h1>
         <Tabs defaultValue="carrier">
-          <TabsList className="w-full">
-            <TabsTrigger className="flex-1" value="carrier">
-              Я перевозчик
-            </TabsTrigger>
-            <TabsTrigger className="flex-1" value="sender">
-              Мне нужна машина
-            </TabsTrigger>
+          <TabsList className="grid h-auto w-full grid-cols-2 gap-1">
+            <TabsTrigger value="carrier">Я перевозчик</TabsTrigger>
+            <TabsTrigger value="sender">Мне нужна машина</TabsTrigger>
+            <TabsTrigger value="ride">Везу попутчиков</TabsTrigger>
+            <TabsTrigger value="pride">Ищу попутку</TabsTrigger>
           </TabsList>
 
           <TabsContent value="carrier">
@@ -249,6 +340,7 @@ function CreatePage() {
                 </div>
               </div>
               {PhotoField}
+              {UrgentField}
               <Button className="w-full" disabled={busy} onClick={() => void submitRoute()}>
                 {busy ? "Публикуем…" : "Опубликовать маршрут"}
               </Button>
@@ -294,7 +386,50 @@ function CreatePage() {
                 </div>
               </div>
               {PhotoField}
+              {UrgentField}
               <Button className="w-full" disabled={busy} onClick={() => void submitRequest()}>
+                {busy ? "Публикуем…" : "Опубликовать заявку"}
+              </Button>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="ride">
+            <div className="card-elevated space-y-3 p-4">
+              {CityFields}
+              <div>
+                <Label>Тип авто</Label>
+                <Select value={vehicleType} onValueChange={setVehicleType}>
+                  <SelectTrigger aria-label="Тип авто попутки">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {VEHICLE_TYPES.map((v) => (
+                      <SelectItem key={v} value={v}>
+                        {v}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {SeatsPrice("Цена за место, ₸")}
+              {PhotoField}
+              {UrgentField}
+              <Button className="w-full" disabled={busy} onClick={() => void submitRide()}>
+                {busy ? "Публикуем…" : "Опубликовать поездку"}
+              </Button>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="pride">
+            <div className="card-elevated space-y-3 p-4">
+              {CityFields}
+              {SeatsPrice("Готов заплатить, ₸")}
+              {UrgentField}
+              <Button
+                className="w-full"
+                disabled={busy}
+                onClick={() => void submitPassengerRequest()}
+              >
                 {busy ? "Публикуем…" : "Опубликовать заявку"}
               </Button>
             </div>
