@@ -7,10 +7,12 @@ export function TrackingMap({
   position,
   from,
   to,
+  heightClass = "h-72",
 }: {
   position: Point | null;
   from?: Point;
   to?: Point;
+  heightClass?: string;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
@@ -78,5 +80,5 @@ export function TrackingMap({
     })();
   }, [position]);
 
-  return <div ref={containerRef} className="h-72 w-full overflow-hidden rounded-xl border" />;
+  return <div ref={containerRef} className={`${heightClass} w-full overflow-hidden rounded-xl border`} />;
 }

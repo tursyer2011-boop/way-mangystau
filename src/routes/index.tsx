@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { BottomNav } from "@/components/BottomNav";
 import { Header } from "@/components/Header";
 import { ListingCard, type Listing } from "@/components/ListingCard";
 import { CITY_NAMES } from "@/lib/cities";
@@ -95,7 +96,7 @@ function Index() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <Header />
       <main className="mx-auto max-w-5xl px-3 py-5">
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
@@ -166,6 +167,7 @@ function Index() {
           ))}
         </section>
       </main>
+      <BottomNav />
     </div>
   );
 }

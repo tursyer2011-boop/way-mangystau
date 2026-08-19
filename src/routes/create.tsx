@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
+import { BackButton } from "@/components/BackButton";
+import { BottomNav } from "@/components/BottomNav";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,9 +55,10 @@ function CreatePage() {
 
   if (!loading && !user) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-20">
         <Header />
         <main className="mx-auto max-w-md px-3 py-10 text-center">
+        <BackButton />
           <h1 className="text-xl font-bold">Нужен аккаунт</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Размещать объявления могут только зарегистрированные пользователи.
@@ -64,6 +67,7 @@ function CreatePage() {
             Войти или зарегистрироваться
           </Button>
         </main>
+        <BottomNav />
       </div>
     );
   }
@@ -191,9 +195,10 @@ function CreatePage() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <Header />
       <main className="mx-auto max-w-xl px-3 py-6">
+        <BackButton />
         <h1 className="mb-4 text-2xl font-extrabold">Новое объявление</h1>
         <Tabs defaultValue="carrier">
           <TabsList className="w-full">
@@ -296,6 +301,7 @@ function CreatePage() {
           </TabsContent>
         </Tabs>
       </main>
+      <BottomNav />
     </div>
   );
 }

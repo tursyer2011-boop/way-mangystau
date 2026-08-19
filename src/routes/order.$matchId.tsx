@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, MapPin, Navigation } from "lucide-react";
 import { toast } from "sonner";
+import { BackButton } from "@/components/BackButton";
+import { BottomNav } from "@/components/BottomNav";
 import { Header } from "@/components/Header";
 import { Chat } from "@/components/Chat";
 import { TrackingMap } from "@/components/TrackingMap";
@@ -10,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cityCoords } from "@/lib/cities";
+import { describePosition, lerpPoint, progressOf } from "@/lib/tracking";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -49,8 +52,7 @@ function OrderPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
-  const watchRef = useRef<number | null>(null);
-  const lastSent = useRef(0);
+  const progressRef = useRef(0);
 
   const { data, isLoading } = useQuery({
     queryKey: ["match", matchId],
@@ -120,11 +122,30 @@ function OrderPage() {
       });
   }, [match, matchId]);
 
+  // keep progress in sync with the latest known position
   useEffect(() => {
-    return () => {
-      if (watchRef.current != null) navigator.geolocation.clearWatch(watchRef.current);
-    };
-  }, []);
+    const f = cityCoords(data?.listing?.from_city);
+    const t = cityCoords(data?.listing?.to_city);
+    if (position && f && t) progressRef.current = progressOf(position, f, t);
+  }, [position, data?.listing?.from_city, data?.listing?.to_city]);
+
+  // демо-симуляция движения перевозчика по маршруту
+  useEffect(() => {
+    if (!isCarrier || match?.status !== "in_transit") return;
+    const f = cityCoords(data?.listing?.from_city);
+    const t = cityCoords(data?.listing?.to_city);
+    if (!f || !t) return;
+    const id = setInterval(() => {
+      const next = Math.min(1, progressRef.current + 0.04);
+      progressRef.current = next;
+      const p = lerpPoint(f, t, next);
+      setPosition(p);
+      void supabase.from("live_tracking").insert({ match_id: matchId, ...p });
+      if (next >= 1) clearInterval(id);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [isCarrier, match?.status, matchId, data?.listing?.from_city, data?.listing?.to_city]);
+
 
   if (!loading && !user) {
     navigate({ to: "/auth" });
@@ -133,22 +154,26 @@ function OrderPage() {
 
   if (isLoading || !data) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-20">
         <Header />
         <main className="mx-auto max-w-3xl px-3 py-6">
+        <BackButton />
           <Skeleton className="h-64 w-full" />
         </main>
+        <BottomNav />
       </div>
     );
   }
 
   if (!match) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-20">
         <Header />
         <main className="mx-auto max-w-3xl px-3 py-10 text-center text-muted-foreground">
+        <BackButton />
           Заказ не найден.
         </main>
+        <BottomNav />
       </div>
     );
   }
@@ -167,10 +192,6 @@ function OrderPage() {
   };
 
   const startTrip = async () => {
-    if (!("geolocation" in navigator)) {
-      toast.error("Геолокация недоступна на этом устройстве");
-      return;
-    }
     const { error } = await supabase
       .from("matches")
       .update({ status: "in_transit" })
@@ -180,25 +201,10 @@ function OrderPage() {
       return;
     }
     void qc.invalidateQueries({ queryKey: ["match", matchId] });
-
-    watchRef.current = navigator.geolocation.watchPosition(
-      (pos) => {
-        const point = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setPosition(point);
-        const now = Date.now();
-        if (now - lastSent.current < 12000) return;
-        lastSent.current = now;
-        void supabase.from("live_tracking").insert({ match_id: match.id, ...point });
-      },
-      () => toast.error("Не удалось получить геолокацию"),
-      { enableHighAccuracy: true, maximumAge: 5000 },
-    );
-    toast.success("Поездка начата, координаты передаются");
+    toast.success("Поездка начата, положение обновляется на карте");
   };
 
   const finish = async () => {
-    if (watchRef.current != null) navigator.geolocation.clearWatch(watchRef.current);
-    watchRef.current = null;
     const { error } = await supabase
       .from("matches")
       .update({ status: "delivered" })
@@ -215,9 +221,10 @@ function OrderPage() {
   const to = cityCoords(data.listing?.to_city);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <Header />
       <main className="mx-auto max-w-3xl space-y-4 px-3 py-6">
+        <BackButton />
         <div className="card-elevated space-y-3 p-4">
           <div className="flex items-center justify-between gap-2">
             <h1 className="text-xl font-extrabold">
@@ -262,6 +269,11 @@ function OrderPage() {
               {...(from ? { from } : {})}
               {...(to ? { to } : {})}
             />
+            {position && from && to && (
+              <p className="rounded-lg bg-secondary px-3 py-2 text-sm font-semibold">
+                {describePosition(position, from, to, data.listing?.to_city)}
+              </p>
+            )}
             {!position && (
               <p className="text-sm text-muted-foreground">
                 Координаты появятся, когда перевозчик начнёт поездку.
@@ -275,6 +287,7 @@ function OrderPage() {
           {user && <Chat matchId={match.id} userId={user.id} />}
         </div>
       </main>
+      <BottomNav />
     </div>
   );
 }

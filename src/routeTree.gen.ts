@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CabinetRouteImport } from './routes/cabinet'
+import { Route as ChatsRouteImport } from './routes/chats'
 import { Route as CreateRouteImport } from './routes/create'
 import { Route as OrderMatchIdRouteImport } from './routes/order.$matchId'
 import { Route as ListingKindIdRouteImport } from './routes/listing.$kind.$id'
@@ -29,6 +30,11 @@ const AuthRoute = AuthRouteImport.update({
 const CabinetRoute = CabinetRouteImport.update({
   id: '/cabinet',
   path: '/cabinet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatsRoute = ChatsRouteImport.update({
+  id: '/chats',
+  path: '/chats',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CreateRoute = CreateRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/cabinet': typeof CabinetRoute
+  '/chats': typeof ChatsRoute
   '/create': typeof CreateRoute
   '/order/$matchId': typeof OrderMatchIdRoute
   '/listing/$kind/$id': typeof ListingKindIdRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/cabinet': typeof CabinetRoute
+  '/chats': typeof ChatsRoute
   '/create': typeof CreateRoute
   '/order/$matchId': typeof OrderMatchIdRoute
   '/listing/$kind/$id': typeof ListingKindIdRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/cabinet': typeof CabinetRoute
+  '/chats': typeof ChatsRoute
   '/create': typeof CreateRoute
   '/order/$matchId': typeof OrderMatchIdRoute
   '/listing/$kind/$id': typeof ListingKindIdRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/cabinet'
+    | '/chats'
     | '/create'
     | '/order/$matchId'
     | '/listing/$kind/$id'
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/cabinet'
+    | '/chats'
     | '/create'
     | '/order/$matchId'
     | '/listing/$kind/$id'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/cabinet'
+    | '/chats'
     | '/create'
     | '/order/$matchId'
     | '/listing/$kind/$id'
@@ -103,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   CabinetRoute: typeof CabinetRoute
+  ChatsRoute: typeof ChatsRoute
   CreateRoute: typeof CreateRoute
   OrderMatchIdRoute: typeof OrderMatchIdRoute
   ListingKindIdRoute: typeof ListingKindIdRoute
@@ -129,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/cabinet'
       fullPath: '/cabinet'
       preLoaderRoute: typeof CabinetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chats': {
+      id: '/chats'
+      path: '/chats'
+      fullPath: '/chats'
+      preLoaderRoute: typeof ChatsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/create': {
@@ -159,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   CabinetRoute: CabinetRoute,
+  ChatsRoute: ChatsRoute,
   CreateRoute: CreateRoute,
   OrderMatchIdRoute: OrderMatchIdRoute,
   ListingKindIdRoute: ListingKindIdRoute,

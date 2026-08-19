@@ -1,6 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { ActiveOrderCard } from "@/components/ActiveOrderCard";
+import { BackButton } from "@/components/BackButton";
+import { BottomNav } from "@/components/BottomNav";
 import { Header } from "@/components/Header";
 import { ListingCard, type Listing } from "@/components/ListingCard";
 import { Badge } from "@/components/ui/badge";
@@ -127,6 +130,8 @@ function CabinetPage() {
   const active = (matches.data ?? []).filter(
     (m) => m.status === "confirmed" || m.status === "in_transit",
   );
+  const done = (matches.data ?? []).filter((m) => m.status === "delivered");
+
 
   const MatchRow = ({ m }: { m: { id: string; status: string } }) => (
     <Link
@@ -140,9 +145,10 @@ function CabinetPage() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <Header />
       <main className="mx-auto max-w-3xl px-3 py-6">
+        <BackButton />
         <h1 className="mb-4 text-2xl font-extrabold">
           Кабинет {profile?.nickname ? `· ${profile.nickname}` : ""}
         </h1>
@@ -176,8 +182,9 @@ function CabinetPage() {
           </TabsContent>
 
           <TabsContent value="orders" className="space-y-4">
+            <h2 className="text-lg font-extrabold">Мои заказы</h2>
             <section className="space-y-2">
-              <h2 className="font-bold">Входящие отклики</h2>
+              <h3 className="font-bold">Ожидают подтверждения</h3>
               {pending.length === 0 && (
                 <p className="text-sm text-muted-foreground">Нет откликов на подтверждение.</p>
               )}
@@ -186,15 +193,25 @@ function CabinetPage() {
               ))}
             </section>
             <section className="space-y-2">
-              <h2 className="font-bold">Активные заказы и чаты</h2>
+              <h3 className="font-bold">Активные заказы</h3>
               {active.length === 0 && (
                 <p className="text-sm text-muted-foreground">Активных заказов нет.</p>
               )}
               {active.map((m) => (
+                <ActiveOrderCard key={m.id} match={m} />
+              ))}
+            </section>
+            <section className="space-y-2">
+              <h3 className="font-bold">Завершённые</h3>
+              {done.length === 0 && (
+                <p className="text-sm text-muted-foreground">Завершённых заказов нет.</p>
+              )}
+              {done.map((m) => (
                 <MatchRow key={m.id} m={m} />
               ))}
             </section>
           </TabsContent>
+
 
           <TabsContent value="settings">
             <div className="card-elevated space-y-4 p-4">
@@ -230,6 +247,7 @@ function CabinetPage() {
           </TabsContent>
         </Tabs>
       </main>
+      <BottomNav />
     </div>
   );
 }

@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, CalendarDays, MessageSquare, Phone } from "lucide-react";
 import { toast } from "sonner";
+import { BackButton } from "@/components/BackButton";
+import { BottomNav } from "@/components/BottomNav";
 import { Header } from "@/components/Header";
 import { PhotoImage } from "@/components/PhotoImage";
 import { Badge } from "@/components/ui/badge";
@@ -107,22 +109,26 @@ function ListingPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-20">
         <Header />
         <main className="mx-auto max-w-3xl px-3 py-6">
+        <BackButton />
           <Skeleton className="h-64 w-full" />
         </main>
+        <BottomNav />
       </div>
     );
   }
 
   if (!data?.row) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-20">
         <Header />
         <main className="mx-auto max-w-3xl px-3 py-10 text-center text-muted-foreground">
+        <BackButton />
           Объявление не найдено.
         </main>
+        <BottomNav />
       </div>
     );
   }
@@ -146,9 +152,10 @@ function ListingPage() {
   const photo = isRoute ? row.vehicle_photo_url : row.photo_url;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <Header />
       <main className="mx-auto max-w-3xl px-3 py-6">
+        <BackButton />
         <div className="card-elevated overflow-hidden">
           <PhotoImage
             path={photo}
@@ -240,6 +247,7 @@ function ListingPage() {
           </div>
         </div>
       </main>
+      <BottomNav />
     </div>
   );
 }
