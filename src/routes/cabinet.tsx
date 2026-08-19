@@ -129,6 +129,8 @@ function CabinetPage() {
   const active = (matches.data ?? []).filter(
     (m) => m.status === "confirmed" || m.status === "in_transit",
   );
+  const done = (matches.data ?? []).filter((m) => m.status === "delivered");
+
 
   const MatchRow = ({ m }: { m: { id: string; status: string } }) => (
     <Link
