@@ -60,10 +60,15 @@ function LeaderboardPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["leaderboard"],
     queryFn: async () => {
-      const { data: rows } = await supabase
-        .from("profiles")
-        .select("id, nickname, username, rating_as_sender, rating_as_carrier");
-      return (rows ?? []) as Row[];
+      const [{ data: rows }, { data: revs }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("id, nickname, username, rating_as_sender, rating_as_carrier"),
+        supabase.from("reviews").select("target_id"),
+      ]);
+      const counts = new Map<string, number>();
+      for (const r of revs ?? []) counts.set(r.target_id, (counts.get(r.target_id) ?? 0) + 1);
+      return (rows ?? []).map((r) => ({ ...r, reviews: counts.get(r.id) ?? 0 })) as Row[];
     },
   });
 
