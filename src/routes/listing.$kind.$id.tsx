@@ -60,7 +60,7 @@ function ListingPage() {
     queryFn: async () => {
       const { data: row } = await supabase.from(cfg.table).select("*").eq("id", id).maybeSingle();
       if (!row) return null;
-      const authorId = (row as Record<string, string>)[cfg.author]!;
+      const authorId = (row as unknown as Record<string, string>)[cfg.author]!;
       const [{ data: author }, { data: contact }] = await Promise.all([
         supabase
           .from("profiles")
@@ -110,11 +110,11 @@ function ListingPage() {
     const { data: created, error } = await supabase
       .from("matches")
       .insert({
-        [linkColumn]: id,
         carrier_id: carrierId,
         sender_id: senderId,
         carrier_confirmed: carrierId === user.id,
         sender_confirmed: senderId === user.id,
+        ...({ [linkColumn]: id } as { route_id?: string }),
       })
       .select("id")
       .single();
