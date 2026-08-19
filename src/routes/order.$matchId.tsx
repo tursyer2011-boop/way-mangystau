@@ -132,22 +132,41 @@ function OrderPage() {
     if (position && f && t) progressRef.current = progressOf(position, f, t);
   }, [position, data?.listing?.from_city, data?.listing?.to_city]);
 
-  // демо-симуляция движения перевозчика по маршруту
+  // демо-сделка: сразу после подтверждения поездка стартует автоматически
   useEffect(() => {
-    if (!isCarrier || match?.status !== "in_transit") return;
+    if (!isDemo || match?.status !== "confirmed") return;
+    void supabase
+      .from("matches")
+      .update({ status: "in_transit" })
+      .eq("id", matchId)
+      .then(() => qc.invalidateQueries({ queryKey: ["match", matchId] }));
+  }, [isDemo, match?.status, matchId, qc]);
+
+  // симуляция движения по маршруту (перевозчик или демо-сделка)
+  useEffect(() => {
+    if (!(isCarrier || isDemo) || match?.status !== "in_transit") return;
     const f = cityCoords(data?.listing?.from_city);
     const t = cityCoords(data?.listing?.to_city);
     if (!f || !t) return;
-    const id = setInterval(() => {
+    const tick = () => {
       const next = Math.min(1, progressRef.current + 0.04);
       progressRef.current = next;
       const p = lerpPoint(f, t, next);
       setPosition(p);
-      void supabase.from("live_tracking").insert({ match_id: matchId, ...p });
+      if (isCarrier) void supabase.from("live_tracking").insert({ match_id: matchId, ...p });
       if (next >= 1) clearInterval(id);
-    }, 5000);
+    };
+    tick();
+    const id = setInterval(tick, 5000);
     return () => clearInterval(id);
-  }, [isCarrier, match?.status, matchId, data?.listing?.from_city, data?.listing?.to_city]);
+  }, [
+    isCarrier,
+    isDemo,
+    match?.status,
+    matchId,
+    data?.listing?.from_city,
+    data?.listing?.to_city,
+  ]);
 
 
   if (!loading && !user) {
