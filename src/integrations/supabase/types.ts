@@ -65,13 +65,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "carrier_routes_carrier_id_fkey"
-            columns: ["carrier_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       live_tracking: {
@@ -155,13 +148,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "matches_carrier_id_fkey"
-            columns: ["carrier_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "matches_passenger_request_id_fkey"
             columns: ["passenger_request_id"]
             isOneToOne: false
@@ -194,13 +180,6 @@ export type Database = {
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "matches_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -240,13 +219,6 @@ export type Database = {
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -294,13 +266,6 @@ export type Database = {
             columns: ["passenger_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "passenger_requests_passenger_id_fkey"
-            columns: ["passenger_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -353,11 +318,30 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      profile_contacts: {
+        Row: {
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
           {
-            foreignKeyName: "passenger_rides_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
+            foreignKeyName: "profile_contacts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -367,7 +351,6 @@ export type Database = {
           created_at: string
           id: string
           nickname: string | null
-          phone: string | null
           rating_as_carrier: number
           rating_as_sender: number
           role: string
@@ -378,7 +361,6 @@ export type Database = {
           created_at?: string
           id: string
           nickname?: string | null
-          phone?: string | null
           rating_as_carrier?: number
           rating_as_sender?: number
           role?: string
@@ -389,7 +371,6 @@ export type Database = {
           created_at?: string
           id?: string
           nickname?: string | null
-          phone?: string | null
           rating_as_carrier?: number
           rating_as_sender?: number
           role?: string
@@ -490,13 +471,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "shipment_requests_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       verification_codes: {
@@ -525,42 +499,7 @@ export type Database = {
       }
     }
     Views: {
-      public_profiles: {
-        Row: {
-          created_at: string | null
-          id: string | null
-          nickname: string | null
-          phone: string | null
-          rating_as_carrier: number | null
-          rating_as_sender: number | null
-          role: string | null
-          show_contact: boolean | null
-          username: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string | null
-          nickname?: string | null
-          phone?: never
-          rating_as_carrier?: number | null
-          rating_as_sender?: number | null
-          role?: string | null
-          show_contact?: boolean | null
-          username?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string | null
-          nickname?: string | null
-          phone?: never
-          rating_as_carrier?: number | null
-          rating_as_sender?: number | null
-          role?: string | null
-          show_contact?: boolean | null
-          username?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       is_match_carrier: { Args: { _match_id: string }; Returns: boolean }
