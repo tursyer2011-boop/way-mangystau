@@ -117,7 +117,9 @@ function CabinetPage() {
 
   const savePhone = async () => {
     if (!user || phone == null) return;
-    const { error } = await supabase.from("profiles").update({ phone }).eq("id", user.id);
+    const { error } = await supabase
+      .from("profile_contacts")
+      .upsert({ user_id: user.id, phone }, { onConflict: "user_id" });
     if (error) {
       toast.error(error.message);
       return;

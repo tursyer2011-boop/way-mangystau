@@ -12,6 +12,8 @@ export const CITIES: City[] = [
   { name: "Форт-Шевченко", lat: 44.5089, lng: 50.2589 },
   { name: "Шетпе", lat: 44.1667, lng: 52.1167 },
   { name: "Сай-Утес", lat: 44.3167, lng: 54.0833 },
+  { name: "Жетыбай", lat: 43.5911, lng: 52.0842 },
+  { name: "Ақшукыр", lat: 43.7594, lng: 51.3417 },
 ];
 
 export const CITY_NAMES = CITIES.map((c) => c.name);

@@ -9,6 +9,8 @@ export type Profile = {
   phone: string | null;
   show_contact: boolean;
   role: string;
+  rating_as_sender?: number;
+  rating_as_carrier?: number;
 };
 
 export function useAuth() {
@@ -24,8 +26,11 @@ export function useAuth() {
         if (active) setProfile(null);
         return;
       }
-      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
-      if (active) setProfile((data as Profile) ?? null);
+      const [{ data }, { data: contact }] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+        supabase.from("profile_contacts").select("phone").eq("user_id", user.id).maybeSingle(),
+      ]);
+      if (active) setProfile(data ? ({ ...data, phone: contact?.phone ?? null } as Profile) : null);
     };
 
     supabase.auth.getSession().then(({ data }) => {
