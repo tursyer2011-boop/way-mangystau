@@ -62,6 +62,7 @@ async function fetchFeed() {
         .filter(Boolean)
         .join(" · "),
       created_at: r.created_at,
+      is_urgent: r.is_urgent,
     })),
     ...(requests.data ?? []).map((r) => ({
       kind: "request" as const,
@@ -73,10 +74,14 @@ async function fetchFeed() {
       price: r.price_offer,
       detail: [r.cargo_type, r.weight_kg ? `${r.weight_kg} кг` : null].filter(Boolean).join(" · "),
       created_at: r.created_at,
+      is_urgent: r.is_urgent,
     })),
   ];
 
-  return items.sort((a, b) => b.created_at.localeCompare(a.created_at));
+  return items.sort(
+    (a, b) =>
+      Number(!!b.is_urgent) - Number(!!a.is_urgent) || b.created_at.localeCompare(a.created_at),
+  );
 }
 
 function Index() {

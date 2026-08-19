@@ -20,6 +20,10 @@ export function Header() {
           </span>
         </Link>
 
+        <Button asChild size="sm" variant="ghost" className="hidden sm:inline-flex">
+          <Link to="/leaderboard">Рейтинг</Link>
+        </Button>
+
         <Button asChild size="sm" className="gap-1">
           <Link to="/create">
             <Plus className="h-4 w-4" />
