@@ -8,6 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { storeVerificationCode, verifyCodeAndRegister } from "@/lib/verification.functions";
+import { generatePasscode, sendPasscodeEmail } from "@/lib/emailjs";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -37,39 +40,89 @@ function AuthPage() {
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("both");
 
+  const storeCode = useServerFn(storeVerificationCode);
+  const verifyCode = useServerFn(verifyCodeAndRegister);
+
+  const sendCode = async (target: string) => {
+    const code = generatePasscode();
+    const { expiresAt } = await storeCode({ data: { email: target, code } });
+    await sendPasscodeEmail(target, code, new Date(expiresAt));
+  };
+
   const signUp = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-        data: { username, nickname, phone, role },
-      },
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
+    if (!email.trim() || password.length < 6) {
+      toast.error("Введите email и пароль (минимум 6 символов)");
       return;
     }
-    setOtpEmail(email);
-    toast.success("Код подтверждения отправлен на почту");
+    setLoading(true);
+    try {
+      await sendCode(email.trim().toLowerCase());
+      setOtpEmail(email.trim().toLowerCase());
+      setOtp("");
+      toast.success("Код подтверждения отправлен на почту");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Не удалось отправить код");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resend = async () => {
+    if (!otpEmail) return;
+    setLoading(true);
+    try {
+      await sendCode(otpEmail);
+      toast.success("Новый код отправлен");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Не удалось отправить код");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const verify = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.verifyOtp({
-      email: otpEmail!,
-      token: otp.trim(),
-      type: "signup",
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
+    if (!/^\d{6}$/.test(otp.trim())) {
+      toast.error("Код состоит из 6 цифр");
       return;
     }
-    toast.success("Почта подтверждена");
-    navigate({ to: "/cabinet" });
+    setLoading(true);
+    try {
+      const res = await verifyCode({
+        data: {
+          email: otpEmail!,
+          code: otp.trim(),
+          password,
+          username,
+          nickname,
+          phone,
+          role: role as "sender" | "carrier" | "both",
+        },
+      });
+      if (!res.ok) {
+        toast.error(
+          res.reason === "expired"
+            ? "Срок действия кода истёк — запросите новый"
+            : res.reason === "invalid"
+              ? "Неверный код подтверждения"
+              : ("message" in res && res.message) || "Не удалось создать аккаунт",
+        );
+        return;
+      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: otpEmail!,
+        password,
+      });
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      toast.success("Почта подтверждена, аккаунт создан");
+      navigate({ to: "/cabinet" });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Ошибка подтверждения");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signIn = async () => {
@@ -92,7 +145,8 @@ function AuthPage() {
         {otpEmail ? (
           <div className="card-elevated space-y-3 p-4">
             <p className="text-sm text-muted-foreground">
-              Введите код из письма, отправленного на {otpEmail}. Ссылка в письме тоже работает.
+              Введите 6-значный код из письма, отправленного на {otpEmail}. Код действует 15
+              минут.
             </p>
             <Label htmlFor="otp">Код подтверждения</Label>
             <Input
@@ -104,6 +158,14 @@ function AuthPage() {
             />
             <Button className="w-full" disabled={loading} onClick={() => void verify()}>
               Подтвердить
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full"
+              disabled={loading}
+              onClick={() => void resend()}
+            >
+              Отправить код повторно
             </Button>
             <Button variant="ghost" className="w-full" onClick={() => setOtpEmail(null)}>
               Назад
