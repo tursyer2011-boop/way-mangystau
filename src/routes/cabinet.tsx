@@ -151,9 +151,17 @@ function CabinetPage() {
       <Header />
       <main className="mx-auto max-w-3xl px-3 py-6">
         <BackButton />
-        <h1 className="mb-4 text-2xl font-extrabold">
-          Кабинет {profile?.nickname ? `· ${profile.nickname}` : ""}
-        </h1>
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <h1 className="text-2xl font-extrabold">
+            Кабинет {profile?.nickname ? `· ${profile.nickname}` : ""}
+          </h1>
+          <Button asChild size="sm" variant="secondary" className="gap-1 shrink-0">
+            <Link to="/leaderboard">
+              <Trophy className="h-4 w-4" aria-hidden />
+              Лидеры
+            </Link>
+          </Button>
+        </div>
 
         <Tabs defaultValue="listings">
           <TabsList className="w-full">
