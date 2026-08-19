@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cityCoords } from "@/lib/cities";
+import { describePosition, lerpPoint, progressOf } from "@/lib/tracking";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -51,8 +52,7 @@ function OrderPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
-  const watchRef = useRef<number | null>(null);
-  const lastSent = useRef(0);
+  const progressRef = useRef(0);
 
   const { data, isLoading } = useQuery({
     queryKey: ["match", matchId],
@@ -192,10 +192,6 @@ function OrderPage() {
   };
 
   const startTrip = async () => {
-    if (!("geolocation" in navigator)) {
-      toast.error("Геолокация недоступна на этом устройстве");
-      return;
-    }
     const { error } = await supabase
       .from("matches")
       .update({ status: "in_transit" })
@@ -205,25 +201,10 @@ function OrderPage() {
       return;
     }
     void qc.invalidateQueries({ queryKey: ["match", matchId] });
-
-    watchRef.current = navigator.geolocation.watchPosition(
-      (pos) => {
-        const point = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setPosition(point);
-        const now = Date.now();
-        if (now - lastSent.current < 12000) return;
-        lastSent.current = now;
-        void supabase.from("live_tracking").insert({ match_id: match.id, ...point });
-      },
-      () => toast.error("Не удалось получить геолокацию"),
-      { enableHighAccuracy: true, maximumAge: 5000 },
-    );
-    toast.success("Поездка начата, координаты передаются");
+    toast.success("Поездка начата, положение обновляется на карте");
   };
 
   const finish = async () => {
-    if (watchRef.current != null) navigator.geolocation.clearWatch(watchRef.current);
-    watchRef.current = null;
     const { error } = await supabase
       .from("matches")
       .update({ status: "delivered" })
@@ -288,6 +269,11 @@ function OrderPage() {
               {...(from ? { from } : {})}
               {...(to ? { to } : {})}
             />
+            {position && from && to && (
+              <p className="rounded-lg bg-secondary px-3 py-2 text-sm font-semibold">
+                {describePosition(position, from, to, data.listing?.to_city)}
+              </p>
+            )}
             {!position && (
               <p className="text-sm text-muted-foreground">
                 Координаты появятся, когда перевозчик начнёт поездку.
