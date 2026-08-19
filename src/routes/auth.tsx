@@ -145,7 +145,8 @@ function AuthPage() {
         {otpEmail ? (
           <div className="card-elevated space-y-3 p-4">
             <p className="text-sm text-muted-foreground">
-              Введите код из письма, отправленного на {otpEmail}. Ссылка в письме тоже работает.
+              Введите 6-значный код из письма, отправленного на {otpEmail}. Код действует 15
+              минут.
             </p>
             <Label htmlFor="otp">Код подтверждения</Label>
             <Input
@@ -157,6 +158,14 @@ function AuthPage() {
             />
             <Button className="w-full" disabled={loading} onClick={() => void verify()}>
               Подтвердить
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full"
+              disabled={loading}
+              onClick={() => void resend()}
+            >
+              Отправить код повторно
             </Button>
             <Button variant="ghost" className="w-full" onClick={() => setOtpEmail(null)}>
               Назад
