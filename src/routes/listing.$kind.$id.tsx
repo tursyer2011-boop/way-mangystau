@@ -110,13 +110,16 @@ function ListingPage() {
       return;
     }
 
+    // демо-профиль «соглашается» автоматически — сделка сразу подтверждена
+    const isDemo = !!author.is_demo;
+
     const { data: created, error } = await supabase
       .from("matches")
       .insert({
         carrier_id: carrierId,
         sender_id: senderId,
-        carrier_confirmed: carrierId === user.id,
-        sender_confirmed: senderId === user.id,
+        carrier_confirmed: isDemo || carrierId === user.id,
+        sender_confirmed: isDemo || senderId === user.id,
         ...({ [linkColumn]: id } as { route_id?: string }),
       })
       .select("id")
@@ -126,7 +129,9 @@ function ListingPage() {
       toast.error(error?.message ?? "Не удалось откликнуться");
       return;
     }
-    toast.success("Отклик отправлен, ожидайте подтверждения");
+    toast.success(
+      isDemo ? "Отклик принят — сделка подтверждена" : "Отклик отправлен, ожидайте подтверждения",
+    );
     navigate({ to: "/order/$matchId", params: { matchId: created.id } });
   };
 
