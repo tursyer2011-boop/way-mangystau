@@ -112,6 +112,7 @@ function ListingPage() {
       <div className="min-h-screen bg-background pb-20">
         <Header />
         <main className="mx-auto max-w-3xl px-3 py-6">
+        <BackButton />
           <Skeleton className="h-64 w-full" />
         </main>
         <BottomNav />
@@ -124,6 +125,7 @@ function ListingPage() {
       <div className="min-h-screen bg-background pb-20">
         <Header />
         <main className="mx-auto max-w-3xl px-3 py-10 text-center text-muted-foreground">
+        <BackButton />
           Объявление не найдено.
         </main>
         <BottomNav />
@@ -153,6 +155,7 @@ function ListingPage() {
     <div className="min-h-screen bg-background pb-20">
       <Header />
       <main className="mx-auto max-w-3xl px-3 py-6">
+        <BackButton />
         <div className="card-elevated overflow-hidden">
           <PhotoImage
             path={photo}

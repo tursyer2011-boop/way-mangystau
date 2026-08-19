@@ -138,6 +138,7 @@ function OrderPage() {
       <div className="min-h-screen bg-background pb-20">
         <Header />
         <main className="mx-auto max-w-3xl px-3 py-6">
+        <BackButton />
           <Skeleton className="h-64 w-full" />
         </main>
         <BottomNav />
@@ -150,6 +151,7 @@ function OrderPage() {
       <div className="min-h-screen bg-background pb-20">
         <Header />
         <main className="mx-auto max-w-3xl px-3 py-10 text-center text-muted-foreground">
+        <BackButton />
           Заказ не найден.
         </main>
         <BottomNav />
@@ -222,6 +224,7 @@ function OrderPage() {
     <div className="min-h-screen bg-background pb-20">
       <Header />
       <main className="mx-auto max-w-3xl space-y-4 px-3 py-6">
+        <BackButton />
         <div className="card-elevated space-y-3 p-4">
           <div className="flex items-center justify-between gap-2">
             <h1 className="text-xl font-extrabold">

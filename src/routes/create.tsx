@@ -58,6 +58,7 @@ function CreatePage() {
       <div className="min-h-screen bg-background pb-20">
         <Header />
         <main className="mx-auto max-w-md px-3 py-10 text-center">
+        <BackButton />
           <h1 className="text-xl font-bold">Нужен аккаунт</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Размещать объявления могут только зарегистрированные пользователи.
@@ -197,6 +198,7 @@ function CreatePage() {
     <div className="min-h-screen bg-background pb-20">
       <Header />
       <main className="mx-auto max-w-xl px-3 py-6">
+        <BackButton />
         <h1 className="mb-4 text-2xl font-extrabold">Новое объявление</h1>
         <Tabs defaultValue="carrier">
           <TabsList className="w-full">

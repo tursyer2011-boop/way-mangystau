@@ -145,6 +145,7 @@ function CabinetPage() {
     <div className="min-h-screen bg-background pb-20">
       <Header />
       <main className="mx-auto max-w-3xl px-3 py-6">
+        <BackButton />
         <h1 className="mb-4 text-2xl font-extrabold">
           Кабинет {profile?.nickname ? `· ${profile.nickname}` : ""}
         </h1>

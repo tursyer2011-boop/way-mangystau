@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { BackButton } from "@/components/BackButton";
 import { BottomNav } from "@/components/BottomNav";
 import { Header } from "@/components/Header";
 import { ListingCard, type Listing } from "@/components/ListingCard";
