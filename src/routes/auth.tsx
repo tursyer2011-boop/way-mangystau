@@ -9,7 +9,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
-import { storeVerificationCode, verifyCodeAndRegister } from "@/lib/verification.functions";
+import {
+  storeVerificationCode,
+  verifyCodeAndRegister,
+  verifyLoginCode,
+} from "@/lib/verification.functions";
 import { generatePasscode, sendPasscodeEmail } from "@/lib/emailjs";
 
 export const Route = createFileRoute("/auth")({
@@ -31,6 +35,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [otpEmail, setOtpEmail] = useState<string | null>(null);
+  const [otpMode, setOtpMode] = useState<"signup" | "login">("signup");
   const [otp, setOtp] = useState("");
 
   const [email, setEmail] = useState("");
@@ -42,6 +47,7 @@ function AuthPage() {
 
   const storeCode = useServerFn(storeVerificationCode);
   const verifyCode = useServerFn(verifyCodeAndRegister);
+  const verifyLogin = useServerFn(verifyLoginCode);
 
   const sendCode = async (target: string) => {
     const code = generatePasscode();
@@ -57,6 +63,7 @@ function AuthPage() {
     setLoading(true);
     try {
       await sendCode(email.trim().toLowerCase());
+      setOtpMode("signup");
       setOtpEmail(email.trim().toLowerCase());
       setOtp("");
       toast.success("Код подтверждения отправлен на почту");
@@ -87,6 +94,28 @@ function AuthPage() {
     }
     setLoading(true);
     try {
+      if (otpMode === "login") {
+        const check = await verifyLogin({ data: { email: otpEmail!, code: otp.trim() } });
+        if (!check.ok) {
+          toast.error(
+            check.reason === "expired"
+              ? "Срок действия кода истёк — запросите новый"
+              : "Неверный код подтверждения",
+          );
+          return;
+        }
+        const { error } = await supabase.auth.signInWithPassword({
+          email: otpEmail!,
+          password,
+        });
+        if (error) {
+          toast.error(error.message);
+          return;
+        }
+        toast.success("Вход подтверждён");
+        navigate({ to: "/" });
+        return;
+      }
       const res = await verifyCode({
         data: {
           email: otpEmail!,
@@ -127,13 +156,25 @@ function AuthPage() {
 
   const signIn = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      const target = email.trim().toLowerCase();
+      // 1) проверяем пароль, 2) сразу выходим и требуем код из письма
+      const { error } = await supabase.auth.signInWithPassword({ email: target, password });
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      await supabase.auth.signOut();
+      await sendCode(target);
+      setOtpMode("login");
+      setOtpEmail(target);
+      setOtp("");
+      toast.success("Код подтверждения входа отправлен на почту");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Не удалось отправить код");
+    } finally {
+      setLoading(false);
     }
-    navigate({ to: "/" });
   };
 
   return (
@@ -145,8 +186,10 @@ function AuthPage() {
         {otpEmail ? (
           <div className="card-elevated space-y-3 p-4">
             <p className="text-sm text-muted-foreground">
-              Введите 6-значный код из письма, отправленного на {otpEmail}. Код действует 15
-              минут.
+              {otpMode === "login"
+                ? "Подтверждение входа: введите 6-значный код из письма, отправленного на "
+                : "Введите 6-значный код из письма, отправленного на "}
+              {otpEmail}. Код действует 15 минут.
             </p>
             <Label htmlFor="otp">Код подтверждения</Label>
             <Input

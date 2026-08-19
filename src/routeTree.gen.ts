@@ -14,6 +14,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CabinetRouteImport } from './routes/cabinet'
 import { Route as ChatsRouteImport } from './routes/chats'
 import { Route as CreateRouteImport } from './routes/create'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as RidesRouteImport } from './routes/rides'
 import { Route as OrderMatchIdRouteImport } from './routes/order.$matchId'
 import { Route as ListingKindIdRouteImport } from './routes/listing.$kind.$id'
 
@@ -42,6 +44,16 @@ const CreateRoute = CreateRouteImport.update({
   path: '/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RidesRoute = RidesRouteImport.update({
+  id: '/rides',
+  path: '/rides',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrderMatchIdRoute = OrderMatchIdRouteImport.update({
   id: '/order/$matchId',
   path: '/order/$matchId',
@@ -59,6 +71,8 @@ export interface FileRoutesByFullPath {
   '/cabinet': typeof CabinetRoute
   '/chats': typeof ChatsRoute
   '/create': typeof CreateRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/rides': typeof RidesRoute
   '/order/$matchId': typeof OrderMatchIdRoute
   '/listing/$kind/$id': typeof ListingKindIdRoute
 }
@@ -68,6 +82,8 @@ export interface FileRoutesByTo {
   '/cabinet': typeof CabinetRoute
   '/chats': typeof ChatsRoute
   '/create': typeof CreateRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/rides': typeof RidesRoute
   '/order/$matchId': typeof OrderMatchIdRoute
   '/listing/$kind/$id': typeof ListingKindIdRoute
 }
@@ -78,6 +94,8 @@ export interface FileRoutesById {
   '/cabinet': typeof CabinetRoute
   '/chats': typeof ChatsRoute
   '/create': typeof CreateRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/rides': typeof RidesRoute
   '/order/$matchId': typeof OrderMatchIdRoute
   '/listing/$kind/$id': typeof ListingKindIdRoute
 }
@@ -89,6 +107,8 @@ export interface FileRouteTypes {
     | '/cabinet'
     | '/chats'
     | '/create'
+    | '/leaderboard'
+    | '/rides'
     | '/order/$matchId'
     | '/listing/$kind/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +118,8 @@ export interface FileRouteTypes {
     | '/cabinet'
     | '/chats'
     | '/create'
+    | '/leaderboard'
+    | '/rides'
     | '/order/$matchId'
     | '/listing/$kind/$id'
   id:
@@ -107,6 +129,8 @@ export interface FileRouteTypes {
     | '/cabinet'
     | '/chats'
     | '/create'
+    | '/leaderboard'
+    | '/rides'
     | '/order/$matchId'
     | '/listing/$kind/$id'
   fileRoutesById: FileRoutesById
@@ -117,6 +141,8 @@ export interface RootRouteChildren {
   CabinetRoute: typeof CabinetRoute
   ChatsRoute: typeof ChatsRoute
   CreateRoute: typeof CreateRoute
+  LeaderboardRoute: typeof LeaderboardRoute
+  RidesRoute: typeof RidesRoute
   OrderMatchIdRoute: typeof OrderMatchIdRoute
   ListingKindIdRoute: typeof ListingKindIdRoute
 }
@@ -158,6 +184,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rides': {
+      id: '/rides'
+      path: '/rides'
+      fullPath: '/rides'
+      preLoaderRoute: typeof RidesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/order/$matchId': {
       id: '/order/$matchId'
       path: '/order/$matchId'
@@ -181,6 +221,8 @@ const rootRouteChildren: RootRouteChildren = {
   CabinetRoute: CabinetRoute,
   ChatsRoute: ChatsRoute,
   CreateRoute: CreateRoute,
+  LeaderboardRoute: LeaderboardRoute,
+  RidesRoute: RidesRoute,
   OrderMatchIdRoute: OrderMatchIdRoute,
   ListingKindIdRoute: ListingKindIdRoute,
 }
