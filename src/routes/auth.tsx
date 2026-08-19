@@ -8,6 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { storeVerificationCode, verifyCodeAndRegister } from "@/lib/verification.functions";
+import { generatePasscode, sendPasscodeEmail } from "@/lib/emailjs";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
