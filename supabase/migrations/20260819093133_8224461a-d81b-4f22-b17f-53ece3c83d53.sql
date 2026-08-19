@@ -1,0 +1,2 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_demo boolean NOT NULL DEFAULT false;
+UPDATE public.profiles p SET is_demo = true WHERE NOT EXISTS (SELECT 1 FROM auth.users u WHERE u.id = p.id);

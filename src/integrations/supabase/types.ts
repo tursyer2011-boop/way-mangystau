@@ -350,6 +350,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_demo: boolean
           nickname: string | null
           rating_as_carrier: number
           rating_as_sender: number
@@ -360,6 +361,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id: string
+          is_demo?: boolean
           nickname?: string | null
           rating_as_carrier?: number
           rating_as_sender?: number
@@ -370,6 +372,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          is_demo?: boolean
           nickname?: string | null
           rating_as_carrier?: number
           rating_as_sender?: number
