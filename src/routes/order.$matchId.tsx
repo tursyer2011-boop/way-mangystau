@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, MapPin, Navigation } from "lucide-react";
 import { toast } from "sonner";
+import { BackButton } from "@/components/BackButton";
+import { BottomNav } from "@/components/BottomNav";
 import { Header } from "@/components/Header";
 import { Chat } from "@/components/Chat";
 import { TrackingMap } from "@/components/TrackingMap";
@@ -133,22 +135,24 @@ function OrderPage() {
 
   if (isLoading || !data) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-20">
         <Header />
         <main className="mx-auto max-w-3xl px-3 py-6">
           <Skeleton className="h-64 w-full" />
         </main>
+        <BottomNav />
       </div>
     );
   }
 
   if (!match) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-20">
         <Header />
         <main className="mx-auto max-w-3xl px-3 py-10 text-center text-muted-foreground">
           Заказ не найден.
         </main>
+        <BottomNav />
       </div>
     );
   }
@@ -215,7 +219,7 @@ function OrderPage() {
   const to = cityCoords(data.listing?.to_city);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <Header />
       <main className="mx-auto max-w-3xl space-y-4 px-3 py-6">
         <div className="card-elevated space-y-3 p-4">
@@ -275,6 +279,7 @@ function OrderPage() {
           {user && <Chat matchId={match.id} userId={user.id} />}
         </div>
       </main>
+      <BottomNav />
     </div>
   );
 }
