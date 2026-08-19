@@ -63,13 +63,23 @@ function OrderPage() {
         .maybeSingle();
       if (!match) return null;
       const m = match as Match;
-      const listing = await fetchMatchListing(m);
-      return { match: m, listing };
+      const [listing, { data: parties }] = await Promise.all([
+        fetchMatchListing(m),
+        supabase
+          .from("profiles")
+          .select("id, is_demo")
+          .in("id", [m.carrier_id, m.sender_id]),
+      ]);
+      return { match: m, listing, parties: parties ?? [] };
     },
   });
 
   const match = data?.match;
   const isCarrier = !!user && match?.carrier_id === user.id;
+  // вторая сторона — демо-профиль: сделка идёт автоматически
+  const isDemo =
+    !!user &&
+    !!data?.parties?.some((p) => p.id !== user.id && (p as { is_demo?: boolean }).is_demo);
 
   // realtime: match status + tracking points
   useEffect(() => {
