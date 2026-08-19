@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CabinetRouteImport } from './routes/cabinet'
 import { Route as CreateRouteImport } from './routes/create'
+import { Route as OrderMatchIdRouteImport } from './routes/order.$matchId'
 import { Route as ListingKindIdRouteImport } from './routes/listing.$kind.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -24,9 +26,19 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CabinetRoute = CabinetRouteImport.update({
+  id: '/cabinet',
+  path: '/cabinet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CreateRoute = CreateRouteImport.update({
   id: '/create',
   path: '/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrderMatchIdRoute = OrderMatchIdRouteImport.update({
+  id: '/order/$matchId',
+  path: '/order/$matchId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ListingKindIdRoute = ListingKindIdRouteImport.update({
@@ -38,34 +50,61 @@ const ListingKindIdRoute = ListingKindIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cabinet': typeof CabinetRoute
   '/create': typeof CreateRoute
+  '/order/$matchId': typeof OrderMatchIdRoute
   '/listing/$kind/$id': typeof ListingKindIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cabinet': typeof CabinetRoute
   '/create': typeof CreateRoute
+  '/order/$matchId': typeof OrderMatchIdRoute
   '/listing/$kind/$id': typeof ListingKindIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cabinet': typeof CabinetRoute
   '/create': typeof CreateRoute
+  '/order/$matchId': typeof OrderMatchIdRoute
   '/listing/$kind/$id': typeof ListingKindIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/create' | '/listing/$kind/$id'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/cabinet'
+    | '/create'
+    | '/order/$matchId'
+    | '/listing/$kind/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/create' | '/listing/$kind/$id'
-  id: '__root__' | '/' | '/auth' | '/create' | '/listing/$kind/$id'
+  to:
+    | '/'
+    | '/auth'
+    | '/cabinet'
+    | '/create'
+    | '/order/$matchId'
+    | '/listing/$kind/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/cabinet'
+    | '/create'
+    | '/order/$matchId'
+    | '/listing/$kind/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  CabinetRoute: typeof CabinetRoute
   CreateRoute: typeof CreateRoute
+  OrderMatchIdRoute: typeof OrderMatchIdRoute
   ListingKindIdRoute: typeof ListingKindIdRoute
 }
 
@@ -85,11 +124,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cabinet': {
+      id: '/cabinet'
+      path: '/cabinet'
+      fullPath: '/cabinet'
+      preLoaderRoute: typeof CabinetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/create': {
       id: '/create'
       path: '/create'
       fullPath: '/create'
       preLoaderRoute: typeof CreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/order/$matchId': {
+      id: '/order/$matchId'
+      path: '/order/$matchId'
+      fullPath: '/order/$matchId'
+      preLoaderRoute: typeof OrderMatchIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/listing/$kind/$id': {
@@ -105,7 +158,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  CabinetRoute: CabinetRoute,
   CreateRoute: CreateRoute,
+  OrderMatchIdRoute: OrderMatchIdRoute,
   ListingKindIdRoute: ListingKindIdRoute,
 }
 export const routeTree = rootRouteImport

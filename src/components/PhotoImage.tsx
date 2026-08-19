@@ -8,7 +8,7 @@ export function PhotoImage({
   alt,
   className,
 }: {
-  path?: string | null;
+  path?: string | null | undefined;
   alt: string;
   className?: string;
 }) {
