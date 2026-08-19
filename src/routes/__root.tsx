@@ -79,14 +79,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Go Mangystau — биржа грузоперевозок Мангистау" },
+      { title: "Way Mangystau — биржа грузоперевозок Мангистау" },
       {
         name: "description",
         content:
           "Биржа грузоперевозок Мангистауской области: попутные машины и грузы между Актау, Жанаозеном, Бейнеу и другими городами.",
       },
-      { name: "author", content: "Go Mangystau" },
-      { property: "og:title", content: "Go Mangystau" },
+      { name: "author", content: "Way Mangystau" },
+      { property: "og:title", content: "Way Mangystau" },
       { property: "og:description", content: "Биржа грузоперевозок Мангистауской области." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

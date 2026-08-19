@@ -26,13 +26,13 @@ import { useAuth } from "@/hooks/useAuth";
 export const Route = createFileRoute("/create")({
   head: () => ({
     meta: [
-      { title: "Разместить объявление — Go Mangystau" },
+      { title: "Разместить объявление — Way Mangystau" },
       {
         name: "description",
         content:
           "Опубликуйте маршрут перевозчика, заявку на груз или пассажирскую поездку по Мангистау.",
       },
-      { property: "og:title", content: "Разместить объявление — Go Mangystau" },
+      { property: "og:title", content: "Разместить объявление — Way Mangystau" },
       { property: "og:description", content: "Грузы и попутчики по Мангистауской области." },
     ],
   }),

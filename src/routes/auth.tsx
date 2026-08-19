@@ -19,12 +19,12 @@ import { generatePasscode, sendPasscodeEmail } from "@/lib/emailjs";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Вход и регистрация — Go Mangystau" },
+      { title: "Вход и регистрация — Way Mangystau" },
       {
         name: "description",
         content: "Войдите или зарегистрируйтесь, чтобы размещать грузы и маршруты по Мангистау.",
       },
-      { property: "og:title", content: "Вход — Go Mangystau" },
+      { property: "og:title", content: "Вход — Way Mangystau" },
       { property: "og:description", content: "Регистрация отправителей и перевозчиков." },
     ],
   }),
@@ -181,7 +181,7 @@ function AuthPage() {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="mx-auto max-w-md px-3 py-8">
-        <h1 className="mb-4 text-2xl font-extrabold">Аккаунт Go Mangystau</h1>
+        <h1 className="mb-4 text-2xl font-extrabold">Аккаунт Way Mangystau</h1>
 
         {otpEmail ? (
           <div className="card-elevated space-y-3 p-4">

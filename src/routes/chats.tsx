@@ -11,9 +11,9 @@ import { useAuth } from "@/hooks/useAuth";
 export const Route = createFileRoute("/chats")({
   head: () => ({
     meta: [
-      { title: "Чаты — Go Mangystau" },
+      { title: "Чаты — Way Mangystau" },
       { name: "description", content: "Переписка с перевозчиками и отправителями по заказам." },
-      { property: "og:title", content: "Чаты — Go Mangystau" },
+      { property: "og:title", content: "Чаты — Way Mangystau" },
       { property: "og:description", content: "Все ваши диалоги по сделкам в одном месте." },
     ],
   }),
