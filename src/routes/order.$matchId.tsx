@@ -268,12 +268,12 @@ function OrderPage() {
                 <CheckCircle2 className="mr-1 h-4 w-4" /> Подтвердить
               </Button>
             )}
-            {isCarrier && match.status === "confirmed" && (
+            {(isCarrier || isDemo) && match.status === "confirmed" && (
               <Button onClick={() => void startTrip()}>
                 <Navigation className="mr-1 h-4 w-4" /> Начать поездку
               </Button>
             )}
-            {isCarrier && match.status === "in_transit" && (
+            {(isCarrier || isDemo) && match.status === "in_transit" && (
               <Button onClick={() => void finish()}>
                 <MapPin className="mr-1 h-4 w-4" /> Прибыл
               </Button>
