@@ -181,8 +181,9 @@ function CabinetPage() {
           </TabsContent>
 
           <TabsContent value="orders" className="space-y-4">
+            <h2 className="text-lg font-extrabold">Мои заказы</h2>
             <section className="space-y-2">
-              <h2 className="font-bold">Входящие отклики</h2>
+              <h3 className="font-bold">Ожидают подтверждения</h3>
               {pending.length === 0 && (
                 <p className="text-sm text-muted-foreground">Нет откликов на подтверждение.</p>
               )}
@@ -191,15 +192,25 @@ function CabinetPage() {
               ))}
             </section>
             <section className="space-y-2">
-              <h2 className="font-bold">Активные заказы и чаты</h2>
+              <h3 className="font-bold">Активные заказы</h3>
               {active.length === 0 && (
                 <p className="text-sm text-muted-foreground">Активных заказов нет.</p>
               )}
               {active.map((m) => (
+                <ActiveOrderCard key={m.id} match={m} />
+              ))}
+            </section>
+            <section className="space-y-2">
+              <h3 className="font-bold">Завершённые</h3>
+              {done.length === 0 && (
+                <p className="text-sm text-muted-foreground">Завершённых заказов нет.</p>
+              )}
+              {done.map((m) => (
                 <MatchRow key={m.id} m={m} />
               ))}
             </section>
           </TabsContent>
+
 
           <TabsContent value="settings">
             <div className="card-elevated space-y-4 p-4">
